@@ -212,30 +212,22 @@ function updateBadges(){
 loadLocal();
 
 // AUTH
-// Handle redirect result on page load
-getRedirectResult(auth).then(result=>{
-  if(result?.user) console.log('Login via redirect OK');
-}).catch(()=>{});
-
 window.loginGoogle=async()=>{
-  const btn=document.getElementById('loginBtn');
   try{
-    btn.textContent='Entrando...';
-    btn.disabled=true;
-    const provider=new GoogleAuthProvider();
-    provider.setCustomParameters({prompt:'select_account'});
-    await signInWithPopup(auth,provider);
+    document.getElementById('loginBtn').textContent='Entrando...';
+    document.getElementById('loginBtn').disabled=true;
+    await signInWithRedirect(auth,new GoogleAuthProvider());
   } catch(e){
-    btn.textContent='Entrar com Google';
-    btn.disabled=false;
-    if(e.code==='auth/popup-blocked'||e.code==='auth/popup-closed-by-user'){
-      // Try redirect as fallback
-      await signInWithRedirect(auth,new GoogleAuthProvider());
-    } else {
-      showToast('Erro: '+e.message,'error');
-    }
+    document.getElementById('loginBtn').textContent='Entrar com Google';
+    document.getElementById('loginBtn').disabled=false;
+    showToast('Erro: '+e.message,'error');
   }
 };
+
+// Handle redirect result on page load
+getRedirectResult(auth).then(result=>{
+  if(result?.user) console.log('Login OK');
+}).catch(e=>{ console.error('Redirect error:',e); });
 window.logout=async()=>{await signOut(auth);};
 
 onAuthStateChanged(auth,user=>{
